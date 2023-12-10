@@ -42,14 +42,14 @@ module ShopifyApp
       filtered_params = request.parameters.symbolize_keys.slice(:code, :shop, :timestamp, :state, :host, :hmac)
 
       oauth_payload = ShopifyAPI::Auth::Oauth.validate_auth_callback(
-        cookies: {
+        cookies:    {
           ShopifyAPI::Auth::Oauth::SessionCookie::SESSION_COOKIE_NAME =>
             cookies.encrypted[ShopifyAPI::Auth::Oauth::SessionCookie::SESSION_COOKIE_NAME],
         },
         auth_query: ShopifyAPI::Auth::Oauth::AuthQuery.new(**filtered_params),
       )
-      api_session = oauth_payload.dig(:session)
-      cookie = oauth_payload.dig(:cookie)
+      api_session   = oauth_payload.dig(:session)
+      cookie        = oauth_payload.dig(:cookie)
 
       [api_session, cookie]
     end
@@ -57,10 +57,10 @@ module ShopifyApp
     def update_rails_cookie(api_session, cookie)
       if cookie.value.present?
         cookies.encrypted[cookie.name] = {
-          expires: cookie.expires,
-          secure: true,
+          expires:   cookie.expires,
+          secure:    true,
           http_only: true,
-          value: cookie.value,
+          value:     cookie.value,
         }
       end
 
@@ -149,9 +149,9 @@ module ShopifyApp
       job = job.constantize if job.is_a?(String)
 
       if config[:inline] == true
-        job.perform_now(shop_domain: session.shop)
+        job.perform_now(shop_domain: session.shop, remote_ip: request.env["HTTP_X_FORWARDED_FOR"])
       else
-        job.perform_later(shop_domain: session.shop)
+        job.perform_later(shop_domain: session.shop, remote_ip: request.env["HTTP_X_FORWARDED_FOR"])
       end
     end
   end

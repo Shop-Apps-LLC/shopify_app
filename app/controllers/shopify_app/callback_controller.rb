@@ -149,9 +149,9 @@ module ShopifyApp
       job = job.constantize if job.is_a?(String)
 
       if config[:inline] == true
-        job.perform_now(shop_domain: session.shop, remote_ip: request.env["HTTP_X_FORWARDED_FOR"])
+        job.perform_now(shop_domain: session.shop, remote_ip: request.remote_ip)
       else
-        job.perform_later(shop_domain: session.shop, remote_ip: request.env["HTTP_X_FORWARDED_FOR"])
+        job.perform_later(shop_domain: session.shop, remote_ip: request.remote_ip)
       end
     end
   end
